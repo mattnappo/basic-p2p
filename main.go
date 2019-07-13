@@ -1,6 +1,6 @@
 package main
 
-import "github.com/xoreo/basic-p2p/p2p/"
+import "github.com/xoreo/basic-p2p/p2p"
 
 func main() {
 

@@ -100,7 +100,9 @@ func NewNode(config Config) error {
 
 	}
 
-	return nil
+	select {}
+
+	// return nil
 }
 
 // streamHandler handles a stream connection to the local p2p node.
@@ -119,4 +121,6 @@ func readData(stream *bufio.ReadWriter) {
 
 }
 
-func writeData(stream *bufio.ReadWriter)
+func writeData(stream *bufio.ReadWriter) {
+
+}
