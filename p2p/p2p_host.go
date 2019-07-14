@@ -3,6 +3,8 @@ package p2p
 import (
 	"bufio"
 	"context"
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/ipfs/go-log"
@@ -13,15 +15,20 @@ import (
 	discovery "github.com/libp2p/go-libp2p-discovery"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	maddr "github.com/multiformats/go-multiaddr"
+	logging "github.com/whyrusleeping/go-logging"
 )
 
 var logger = log.Logger("rendezvous")
 
-// NewNode initializes a new node.
-func NewNode(config Config) error {
+// InitLogger initializes the logger.
+func InitLogger() {
+	log.SetAllLoggers(logging.WARNING)
+	log.SetLogLevel("rendezvous", "info")
+}
 
-	// Init the bootstrap peer addresses
-	var bootstrapPeers []maddr.Multiaddr
+// StartNode starts a new node.
+func StartNode(config Config) error {
+	logger.Info("starting node")
 
 	ctx := context.Background()
 
@@ -48,9 +55,11 @@ func NewNode(config Config) error {
 		return err
 	}
 
+	logger.Info("bootstrapping nodes")
 	// Connect to IPFS bootstrap nodes
 	var waitGroup sync.WaitGroup
-	for _, peerAddr := range bootstrapPeers {
+	for _, peerAddr := range config.BootstrapPeers {
+		logger.Info("bootstrap node:", peerAddr)
 		peerInfo, _ := peer.AddrInfoFromP2pAddr(peerAddr)
 		waitGroup.Add(1)
 		go func() error {
@@ -118,9 +127,48 @@ func streamHandler(stream network.Stream) {
 }
 
 func readData(stream *bufio.ReadWriter) {
+	for {
+		str, err := stream.ReadString('\n')
+		if err != nil {
+			fmt.Println("error reading from buffer in readData")
+			panic(err)
+		}
 
+		if str == "" {
+			return
+		}
+		if str != "\n" {
+			// Green console colour: 	\x1b[32m
+			// Reset console colour: 	\x1b[0m
+			fmt.Printf("\x1b[32m%s\x1b[0m> ", str)
+		}
+
+	}
 }
 
 func writeData(stream *bufio.ReadWriter) {
+	stdReader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("> ")
+		dataToSend, err := stdReader.ReadString('\n')
+		if err != nil {
+			fmt.Println("error reading from stdin")
+			panic(err)
+		}
+
+		_, err = stream.WriteString(dataToSend)
+		if err != nil {
+			fmt.Println("error writing to stream buffer in writeData")
+			panic(err)
+		}
+
+		err = stream.Flush()
+		if err != nil {
+			fmt.Println("error flushing stream buffer")
+			panic(err)
+		}
+
+	}
 
 }

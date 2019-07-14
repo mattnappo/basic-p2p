@@ -1,7 +1,9 @@
 package p2p
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 )
@@ -34,7 +36,15 @@ func ParseFlags() (Config, error) {
 	if len(config.BootstrapPeers) == 0 {
 		config.BootstrapPeers = dht.DefaultBootstrapPeers
 	}
+	fmt.Println("there are not none")
+	// fmt.Println(config.String())
 
 	return config, nil
 
+}
+
+// String converts a Config struct to a string.
+func (config Config) String() string {
+	json, _ := json.MarshalIndent(config, "", "  ")
+	return string(json)
 }
