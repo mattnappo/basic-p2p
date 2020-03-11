@@ -1,4 +1,4 @@
-ackage main
+package main
 
 import (
 	"bufio"
@@ -100,6 +100,7 @@ func main() {
 
 	// 0.0.0.0 will listen on any interface device.
 	sourceMultiAddr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
+	fmt.Println(sourceMultiAddr)
 
 	// libp2p.New constructs a new libp2p Host.
 	// Other options can be added here.
@@ -113,6 +114,7 @@ func main() {
 		panic(err)
 	}
 
+	/// Running the server
 	if *dest == "" {
 		// Set a function as stream handler.
 		// This function is called when a peer connects, and starts a stream with this protocol.
@@ -138,7 +140,7 @@ func main() {
 
 		// Hang forever
 		<-make(chan struct{})
-	} else {
+	} else { /// When a multiaddr to connect to is given (this will establish conn with another node given ma)
 		fmt.Println("This node's multiaddresses:")
 		for _, la := range host.Addrs() {
 			fmt.Printf(" - %v\n", la)
